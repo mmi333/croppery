@@ -1,4 +1,6 @@
-from flask import Flask, request, Response
+import os
+from flask import Flask, send_from_directory, request, Response
+from flask_cors import CORS, cross_origin
 import jsonpickle
 import numpy as np
 import cv2
@@ -26,7 +28,19 @@ from detectron2.data import MetadataCatalog, DatasetCatalog
 #from detic.config import add_detic_config
 #from detic.modeling.utils import reset_cls_test
 
-app = Flask(__name__)
+
+app = Flask(__name__, static_folder='build')
+cors = CORS(app)
+
+# Serve React App
+@app.route('/', defaults={'path': ''})
+@app.route('/<path:path>')
+@cross_origin()
+def serve(path):
+    if path != "" and os.path.exists(app.static_folder + '/' + path):
+        return send_from_directory(app.static_folder, path)
+    else:
+        return send_from_directory(app.static_folder, 'index.html')
 
 def load_predictor():
     cfg = get_cfg()
@@ -82,4 +96,5 @@ def upload():
 
 if __name__ == '__main__':
     #predictor,metadata = load_predictor()
-    app.run(host='0.0.0.0', port=5000)
+    app.run(use_reloader=True, port=5000, threaded=True)
+
