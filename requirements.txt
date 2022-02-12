@@ -1,3 +1,4 @@
+Flask_Cors==3.0.10
 Flask==2.0.1
 jsonpickle==2.1.0
 torch==1.9.1
@@ -13,5 +14,3 @@ scikit-learn
 lvis
 nltk
 git+https://github.com/openai/CLIP.git
---find-links https://dl.fbaipublicfiles.com/detectron2/wheels/cpu/torch1.9/index.html
-detectron2
