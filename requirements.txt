@@ -1,7 +1,17 @@
 Flask==2.0.1
-detectron2 -f https://dl.fbaipublicfiles.com/detectron2/wheels/cu111/torch1.9/index.html
+detectron2==0.6+cu102 -f https://dl.fbaipublicfiles.com/detectron2/wheels/cu111/torch1.9/index.html
 jsonpickle==2.1.0
 opencv_python==4.5.3.56
 torch==1.9.1
 numpy==1.17.4
 Pillow==9.0.1
+opencv-python
+timm
+dataclasses
+ftfy
+regex
+fasttext
+scikit-learn
+lvis
+nltk
+git+https://github.com/openai/CLIP.git
