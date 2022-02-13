@@ -80,6 +80,10 @@ export default function App() {
     imgRef.current = img;
   }, []);
 
+  const buttonClicked = (c) => {
+    setCrop(c);
+    setCompletedCrop(c);
+  }
   useEffect(() => {
     if (!completedCrop || !previewCanvasRef.current || !imgRef.current) {
       return;
@@ -137,7 +141,7 @@ export default function App() {
         />
       </div>
         {croplist.map(item => (
-          <button key={item.name} onClick={() => setCrop(item.cropsize)}>{item.name} </button>
+          <button key={item.name} onClick={() => buttonClicked(item.cropsize)}>{item.name} </button>
         ))}
       <button
         type="button"
