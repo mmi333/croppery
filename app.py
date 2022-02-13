@@ -22,11 +22,9 @@ from detectron2.config import get_cfg
 from detectron2.utils.visualizer import Visualizer
 from detectron2.data import MetadataCatalog, DatasetCatalog
 
-# Detic libraries
-#sys.path.insert(0, 'third_party/CenterNet2/projects/CenterNet2/')
-#from centernet.config import add_centernet_config
-#from detic.config import add_detic_config
-#from detic.modeling.utils import reset_cls_test
+from centernet.config import add_centernet_config
+from detic.config import add_detic_config
+from detic.modeling.utils import reset_cls_test
 
 
 app = Flask(__name__, static_folder='build')
@@ -81,8 +79,9 @@ def upload():
     global predictor
     global metadata
     r = request
+    file = r.files.get('file')
     # convert string of image data to uint8
-    nparr = np.fromstring(r.data, np.uint8)
+    nparr = np.fromstring(file.read(), np.uint8)
     # decode image
     img = cv2.imdecode(nparr, cv2.IMREAD_COLOR)
     img = cv2.cvtColor(img , cv2.COLOR_BGR2RGB)
@@ -95,6 +94,6 @@ def upload():
 
 
 if __name__ == '__main__':
-    #predictor,metadata = load_predictor()
+    predictor,metadata = load_predictor()
     app.run(use_reloader=True, port=5000, threaded=True)
 

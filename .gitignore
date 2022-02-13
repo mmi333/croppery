@@ -1,1 +1,14 @@
 frontend/node_modules
+detic
+Detic
+configs
+docs
+CenterNet2
+centernet
+third_party
+tools
+cog.yaml
+train_net.py
+predict.py
+demo.py
+datasets
