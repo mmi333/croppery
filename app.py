@@ -8,6 +8,8 @@ import torch
 import detectron2
 from detectron2.utils.logger import setup_logger
 setup_logger()
+import base64
+import io
 
 # import some common libraries
 import sys
@@ -21,7 +23,7 @@ from detectron2.engine import DefaultPredictor
 from detectron2.config import get_cfg
 from detectron2.utils.visualizer import Visualizer
 from detectron2.data import MetadataCatalog, DatasetCatalog
-
+from detectron2.structures import Boxes, BoxMode
 from centernet.config import add_centernet_config
 from detic.config import add_detic_config
 from detic.modeling.utils import reset_cls_test
@@ -79,18 +81,34 @@ def upload():
     global predictor
     global metadata
     r = request
-    file = r.files.get('file')
     # convert string of image data to uint8
-    nparr = np.fromstring(file.read(), np.uint8)
-    # decode image
-    img = cv2.imdecode(nparr, cv2.IMREAD_COLOR)
-    img = cv2.cvtColor(img , cv2.COLOR_BGR2RGB)
-
+    rstr = r.data.decode("utf-8").replace('data:image/png;base64,', '')
+    base64_decoded = base64.b64decode(rstr)
+    byio = io.BytesIO(base64_decoded)
+    byio.seek(0)
+    img = Image.open(byio)
+    img = np.array(img)[...,:3]
     # build a response dict to send back to client
     response = predictor(img)
-    # encode response using jsonpickle
-    response_pickled = jsonpickle.encode(response)
-    return Response(response=response_pickled, status=200, mimetype="application/json")
+    response_dict = response['instances'].to("cpu").get_fields()
+    boxes = response_dict['pred_boxes'].to("cpu")
+    scores = response_dict['scores'].to("cpu")
+    pred_classes = response_dict['pred_classes'].to("cpu")
+    class_names = metadata.thing_classes
+    croplist = []
+    count = 1
+    for box,score,pclass in zip(boxes, scores,pred_classes):
+        box = BoxMode.convert(box.tolist(),BoxMode(0),BoxMode(1))
+        score = score.item() * 100 
+        cropsize = {'x':box[0],'y':box[1],'width':box[2], 'height':box[3]}
+        cropdict = {}
+        cropdict['name'] = str(count) + " - " + class_names[pclass] + "(" + str(score) + ")"
+        count += 1
+        cropdict['cropsize'] = cropsize
+        croplist.append(cropdict)
+    response = json.dumps(croplist)
+    print(response)
+    return Response(response=response, status=200, mimetype="application/json")
 
 
 if __name__ == '__main__':
