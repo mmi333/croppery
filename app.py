@@ -37,7 +37,7 @@ def load_predictor():
     cfg.MODEL.ROI_HEADS.SCORE_THRESH_TEST = 0.5  # set threshold for this model
     cfg.MODEL.ROI_BOX_HEAD.ZEROSHOT_WEIGHT_PATH = 'rand'
     cfg.MODEL.ROI_HEADS.ONE_CLASS_PER_PROPOSAL = True # For better visualization purpose. Set to False for all classes.
-    # cfg.MODEL.DEVICE='cpu' # uncomment this to use cpu-only mode.
+    cfg.MODEL.DEVICE='cpu' # uncomment this to use cpu-only mode.
     predictor = DefaultPredictor(cfg)
 
     BUILDIN_CLASSIFIER = {
