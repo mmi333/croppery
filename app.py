@@ -28,20 +28,6 @@ from centernet.config import add_centernet_config
 from detic.config import add_detic_config
 from detic.modeling.utils import reset_cls_test
 
-
-app = Flask(__name__, static_folder='build')
-cors = CORS(app)
-
-# Serve React App
-@app.route('/', defaults={'path': ''})
-@app.route('/<path:path>')
-@cross_origin()
-def serve(path):
-    if path != "" and os.path.exists(app.static_folder + '/' + path):
-        return send_from_directory(app.static_folder, path)
-    else:
-        return send_from_directory(app.static_folder, 'index.html')
-
 def load_predictor():
     cfg = get_cfg()
     add_centernet_config(cfg)
@@ -75,11 +61,24 @@ def load_predictor():
     reset_cls_test(predictor.model, classifier, num_classes)
     return predictor, metadata
 
+predictor,metadata = load_predictor()
+app = Flask(__name__, static_folder='build')
+cors = CORS(app)
+
+# Serve React App
+@app.route('/', defaults={'path': ''})
+@app.route('/<path:path>')
+@cross_origin()
+def serve(path):
+    if path != "" and os.path.exists(app.static_folder + '/' + path):
+        return send_from_directory(app.static_folder, path)
+    else:
+        return send_from_directory(app.static_folder, 'index.html')
+
+
 # route http posts to this method
 @app.route('/api/upload', methods=['POST'])
 def upload():
-    global predictor
-    global metadata
     r = request
     # convert string of image data to uint8
     rstr = r.data.decode("utf-8").replace('data:image/png;base64,', '')
@@ -107,11 +106,9 @@ def upload():
         cropdict['cropsize'] = cropsize
         croplist.append(cropdict)
     response = json.dumps(croplist)
-    print(response)
     return Response(response=response, status=200, mimetype="application/json")
 
 
 if __name__ == '__main__':
-    predictor,metadata = load_predictor()
     app.run(use_reloader=True, port=5000, threaded=True)
 

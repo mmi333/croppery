@@ -12,3 +12,4 @@ train_net.py
 predict.py
 demo.py
 datasets
+__pycache__
